@@ -13,7 +13,7 @@ from models.generator.projection import Feature2Structure, Feature2Texture
 
 class Generator(nn.Module):
 
-    def __init__(self, image_in_channels=3, edge_in_channels=2, out_channels=3, init_weights=True):#应该是可以在这里做修改，通道数的修改
+    def __init__(self, image_in_channels=1, edge_in_channels=2, out_channels=1, init_weights=True):#应该是可以在这里做修改，通道数的修改
         super(Generator, self).__init__()
 
         self.freeze_ec_bn = False
@@ -80,7 +80,7 @@ class Generator(nn.Module):
             nn.LeakyReLU(negative_slope=0.2),
         )
         self.out_layer = nn.Sequential(#对应网络结构中output的最后一个卷积层
-            nn.Conv2d(64 + 64 + 64, 3, kernel_size=1),
+            nn.Conv2d(64 + 64 + 64, 1, kernel_size=1),
             nn.Tanh()
         )
 

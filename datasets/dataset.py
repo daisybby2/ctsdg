@@ -6,6 +6,7 @@ from torch.utils.data import DataLoader
 from utils.canny import image_to_edge
 from datasets.transform import mask_transforms, image_transforms
 from datasets.folder import make_dataset
+from datasets.dem2gray import dem2gray
 
 
 class ImageDataset(Dataset):
@@ -30,7 +31,10 @@ class ImageDataset(Dataset):
     def __getitem__(self, index):
 
         image = Image.open(self.image_files[index % self.number_image])
-        image = self.image_files_transforms(image.convert('RGB'))#将读取的图像转换成RGB，应该是需要修改的，DEM是单通道图像。这一句是数据预处理
+        #image = self.image_files_transforms(image.convert('RGB'))#将读取的图像转换成RGB，应该是需要修改的，DEM是单通道图像。这一句是数据预处理
+        #将dem图像映射到灰度图，[0,255]
+        image=dem2gray(image)
+        image=self.image_files_transforms()
 
         if self.mode == 'train':#训练模式下
             mask = Image.open(self.mask_files[random.randint(0, self.number_mask - 1)])#随机选择一张mask掩膜

@@ -27,14 +27,14 @@ class TrainOptions:
         parser.add_argument('--sigma', type=float, default=2.)
         parser.add_argument('--mode', type=str, default='train')
 
-        parser.add_argument('--gen_lr', type=float, default=0.0002)
-        parser.add_argument('--D2G_lr', type=float, default=0.1)
-        parser.add_argument('--lr_finetune', type=float, default=0.00005)
-        parser.add_argument('--finetune', type=bool, default=False)
+        parser.add_argument('--gen_lr', type=float, default=0.0002)#生成器的学习率
+        parser.add_argument('--D2G_lr', type=float, default=0.1)#判别器到生成器的学习效率，控制判别器对生成器的影响作用
+        parser.add_argument('--lr_finetune', type=float, default=0.00005)#微调过程中的学习率
+        parser.add_argument('--finetune', type=bool, default=False)#是否进行微调
         
-        parser.add_argument('--start_iter', type=int, default=1)
-        parser.add_argument('--train_iter', type=int, default=300000)
-        parser.add_argument('--save_interval', type=int, default=10000)
+        parser.add_argument('--start_iter', type=int, default=1)#训练的起始迭代次数
+        parser.add_argument('--train_iter', type=int, default=300000)#训练的总迭代次数
+        parser.add_argument('--save_interval', type=int, default=10000)#模型保存的间隔迭代次数
 
         parser.add_argument('--VALID_LOSS', type=float, default=10.0)
         parser.add_argument('--HOLE_LOSS', type=float, default=60.0)

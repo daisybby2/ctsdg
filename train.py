@@ -40,8 +40,8 @@ if is_cuda:
         synchronize()
 
 # model & load model
-generator = Generator(image_in_channels=3, edge_in_channels=2, out_channels=3)#可以修改图像的通道数
-discriminator = Discriminator(image_in_channels=3, edge_in_channels=2)
+generator = Generator(image_in_channels=1, edge_in_channels=2, out_channels=1)#可以修改图像的通道数
+discriminator = Discriminator(image_in_channels=1, edge_in_channels=2)
 extractor = VGG16FeatureExtractor()
 
 # cuda

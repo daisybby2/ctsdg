@@ -9,7 +9,7 @@ def image_transforms(load_size):#对图像预处理，重采样、转换成张�
         # transforms.CenterCrop(size=(178, 178)),  # for CelebA
         transforms.Resize(size=load_size, interpolation=Image.BILINEAR), #双线性插值，把图像缩放到load_size大小
         transforms.ToTensor(),#把图像转换成pytorch张量
-        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))#归一化，三通道，需要修改
+        transforms.Normalize((0.5,  ), (0.5, ))#归一化，三通道，需要修改
     ])
 
 
