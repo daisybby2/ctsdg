@@ -13,7 +13,7 @@ from models.generator.projection import Feature2Structure, Feature2Texture
 
 class Generator(nn.Module):
 
-    def __init__(self, image_in_channels=3, edge_in_channels=2, out_channels=3, init_weights=True):
+    def __init__(self, image_in_channels=3, edge_in_channels=2, out_channels=3, init_weights=True):#应该是可以在这里做修改，通道数的修改
         super(Generator, self).__init__()
 
         self.freeze_ec_bn = False
@@ -59,27 +59,27 @@ class Generator(nn.Module):
         # -------------------
         # Projection Function
         # -------------------
-        self.structure_feature_projection = Feature2Structure()
-        self.texture_feature_projection = Feature2Texture()
+        self.structure_feature_projection = Feature2Structure()#特征转换成边
+        self.texture_feature_projection = Feature2Texture()#特征转换成纹理，应该是仅用于输出
 
         # -----------------------------------
         # Bi-directional Gated Feature Fusion
         # -----------------------------------
-        self.bigff = BiGFF(in_channels=64, out_channels=64)
+        self.bigff = BiGFF(in_channels=64, out_channels=64)#双向门控特征融合模块
 
         # ------------------------------
         # Contextual Feature Aggregation
         # ------------------------------
-        self.fusion_layer1 = nn.Sequential(
+        self.fusion_layer1 = nn.Sequential(#对融合后的特征进行跨步卷积，降采样
             nn.Conv2d(64 + 64, 64, kernel_size=3, stride=2, padding=1),
             nn.LeakyReLU(negative_slope=0.2)
         )
         self.cfa = CFA(in_channels=64, out_channels=64)
-        self.fusion_layer2 = nn.Sequential(
+        self.fusion_layer2 = nn.Sequential(#融合原始特征图和CFA输出的特征图，更好地保留原始特征图的信息
             nn.Conv2d(64 + 64, 64, kernel_size=3, stride=1, padding=1),
             nn.LeakyReLU(negative_slope=0.2),
         )
-        self.out_layer = nn.Sequential(
+        self.out_layer = nn.Sequential(#对应网络结构中output的最后一个卷积层
             nn.Conv2d(64 + 64 + 64, 3, kernel_size=1),
             nn.Tanh()
         )
@@ -92,7 +92,7 @@ class Generator(nn.Module):
         ec_textures = {}
         ec_structures = {}
 
-        input_texture_mask = torch.cat((mask, mask, mask), dim=1)
+        input_texture_mask = torch.cat((mask, mask, mask), dim=1)#下面是纹理编码器，把每一层的特征都保存到列表里，便于跳跃连接时使用
         ec_textures['ec_t_0'], ec_textures['ec_t_masks_0'] = input_image, input_texture_mask
         ec_textures['ec_t_1'], ec_textures['ec_t_masks_1'] = self.ec_texture_1(ec_textures['ec_t_0'], ec_textures['ec_t_masks_0'])
         ec_textures['ec_t_2'], ec_textures['ec_t_masks_2'] = self.ec_texture_2(ec_textures['ec_t_1'], ec_textures['ec_t_masks_1'])
@@ -102,7 +102,7 @@ class Generator(nn.Module):
         ec_textures['ec_t_6'], ec_textures['ec_t_masks_6'] = self.ec_texture_6(ec_textures['ec_t_5'], ec_textures['ec_t_masks_5'])
         ec_textures['ec_t_7'], ec_textures['ec_t_masks_7'] = self.ec_texture_7(ec_textures['ec_t_6'], ec_textures['ec_t_masks_6'])
 
-        input_structure_mask = torch.cat((mask, mask), dim=1)
+        input_structure_mask = torch.cat((mask, mask), dim=1)#结构编码器，把每一层的特征都保存到列表里，沿着通道的方向拼接，拼接成2通道mask，因为输入的边图是2通道的
         ec_structures['ec_s_0'], ec_structures['ec_s_masks_0'] = input_edge, input_structure_mask
         ec_structures['ec_s_1'], ec_structures['ec_s_masks_1'] = self.ec_structure_1(ec_structures['ec_s_0'], ec_structures['ec_s_masks_0'])
         ec_structures['ec_s_2'], ec_structures['ec_s_masks_2'] = self.ec_structure_2(ec_structures['ec_s_1'], ec_structures['ec_s_masks_1'])
@@ -112,21 +112,21 @@ class Generator(nn.Module):
         ec_structures['ec_s_6'], ec_structures['ec_s_masks_6'] = self.ec_structure_6(ec_structures['ec_s_5'], ec_structures['ec_s_masks_5'])
         ec_structures['ec_s_7'], ec_structures['ec_s_masks_7'] = self.ec_structure_7(ec_structures['ec_s_6'], ec_structures['ec_s_masks_6'])
 
-        dc_texture, dc_tecture_mask = ec_structures['ec_s_7'], ec_structures['ec_s_masks_7']
+        dc_texture, dc_tecture_mask = ec_structures['ec_s_7'], ec_structures['ec_s_masks_7']#取结构编码的最后一层特征，作为纹理解码器的输入
         for _ in range(7, 0, -1):
             ec_texture_skip = 'ec_t_{:d}'.format(_ - 1)
-            ec_texture_masks_skip = 'ec_t_masks_{:d}'.format(_ - 1)
-            dc_conv = 'dc_texture_{:d}'.format(_)
+            ec_texture_masks_skip = 'ec_t_masks_{:d}'.format(_ - 1)#encoder第_-1层的特征和decoder第_层的输出，在通道上拼接，输入到decoder的第_-1层
+            dc_conv = 'dc_texture_{:d}'.format(_)#定义纹理解码器每一层的名字，从7开始往1定义
 
             dc_texture = F.interpolate(dc_texture, scale_factor=2, mode='bilinear')
-            dc_tecture_mask = F.interpolate(dc_tecture_mask, scale_factor=2, mode='nearest')
+            dc_tecture_mask = F.interpolate(dc_tecture_mask, scale_factor=2, mode='nearest')#利用插值将纹理特征和掩膜特征放大2倍，
 
-            dc_texture = torch.cat((dc_texture, ec_textures[ec_texture_skip]), dim=1)
-            dc_tecture_mask = torch.cat((dc_tecture_mask, ec_textures[ec_texture_masks_skip]), dim=1)
+            dc_texture = torch.cat((dc_texture, ec_textures[ec_texture_skip]), dim=1)#拼接解码器上一层的输出和编码器对应层的输出
+            dc_tecture_mask = torch.cat((dc_tecture_mask, ec_textures[ec_texture_masks_skip]), dim=1)#掩膜也是同样的操作
 
-            dc_texture, dc_tecture_mask = getattr(self, dc_conv)(dc_texture, dc_tecture_mask)
+            dc_texture, dc_tecture_mask = getattr(self, dc_conv)(dc_texture, dc_tecture_mask)#通过字符串dc_conv调用类的属性函数，其实也就是纹理解码器的第_层
 
-        dc_structure, dc_structure_masks = ec_textures['ec_t_7'], ec_textures['ec_t_masks_7']
+        dc_structure, dc_structure_masks = ec_textures['ec_t_7'], ec_textures['ec_t_masks_7']#取纹理编码的最后一层特征，作为结构解码器的输入。
         for _ in range(7, 0, -1):
 
             ec_structure_skip = 'ec_s_{:d}'.format(_ - 1)
@@ -145,17 +145,17 @@ class Generator(nn.Module):
         # Projection Function
         # -------------------
         projected_image = self.texture_feature_projection(dc_texture)
-        projected_edge = self.structure_feature_projection(dc_structure)
+        projected_edge = self.structure_feature_projection(dc_structure)#把解码得到的纹理特征和结构特征转换成图像/edge边的形式
 
-        output_bigff = self.bigff(dc_texture, dc_structure)
+        output_bigff = self.bigff(dc_texture, dc_structure)#解码出的纹理特征和结构特征，送到BIGFF模块进行处理
 
-        output = self.fusion_layer1(output_bigff)
+        output = self.fusion_layer1(output_bigff)#融合两个特征
         output_atten = self.cfa(output, output)
-        output = self.fusion_layer2(torch.cat((output, output_atten), dim=1))
-        output = F.interpolate(output, scale_factor=2, mode='bilinear')
-        output = self.out_layer(torch.cat((output, output_bigff), dim=1))
+        output = self.fusion_layer2(torch.cat((output, output_atten), dim=1))#拼接CFA的输入和输出。
+        output = F.interpolate(output, scale_factor=2, mode='bilinear')#将特征图的长宽放大1倍
+        output = self.out_layer(torch.cat((output, output_bigff), dim=1))#最后一层，3通道的输出
 
-        return output, projected_image, projected_edge
+        return output, projected_image, projected_edge#返回最后一层的输出，经过编码解码的iamge和edge，应该是用于loss的计算
 
     def train(self, mode=True):
 

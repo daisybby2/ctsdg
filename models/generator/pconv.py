@@ -98,9 +98,9 @@ class PConvBNActiv(nn.Module):
         elif activ == 'leaky':
             self.activation = nn.LeakyReLU(negative_slope=0.2)
 
-    def forward(self, images, masks):
+    def forward(self, images, masks):#数据前向传播的过程
 
-        images, masks = self.conv(images, masks)
+        images, masks = self.conv(images, masks)#对输入的图像和mask进行一次部分卷积
         if hasattr(self, 'bn'):
             images = self.bn(images)
         if hasattr(self, 'activation'):

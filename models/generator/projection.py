@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 
-class Bottleneck(nn.Module):
+class Bottleneck(nn.Module):#一个残差块，输入x，x经过一次卷积->BN操作->relu，再卷积->BN操作，直接+x实现跳跃连接，再relu
 
     def __init__(self, inplanes, planes, stride=1):
         super(Bottleneck, self).__init__()
@@ -20,7 +20,7 @@ class Bottleneck(nn.Module):
         out = self.relu(self.bn1(self.conv1(x)))
         out = self.bn2(self.conv2(out))
 
-        out += residual
+        out += residual#实现跳跃连接
         out = self.relu(out)
 
         return out
@@ -31,8 +31,8 @@ class Feature2Structure(nn.Module):
     def __init__(self, inplanes=64, planes=16):
         super(Feature2Structure, self).__init__()
 
-        self.structure_resolver = Bottleneck(inplanes, planes)
-        self.out_layer = nn.Sequential(
+        self.structure_resolver = Bottleneck(inplanes, planes)#残差块，将高维纹理特征转换成低维特征
+        self.out_layer = nn.Sequential(#容器，将残差块的输出映射成二值边图
             nn.Conv2d(64, 1, 1),
             nn.Sigmoid()
         )
