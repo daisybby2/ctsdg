@@ -55,7 +55,7 @@ class StructureBranch(nn.Module):
 
 class EdgeDetector(nn.Module):
 
-    def __init__(self, in_channels=3, mid_channels=16, out_channels=1):
+    def __init__(self, in_channels=1, mid_channels=16, out_channels=1):
         super(EdgeDetector, self).__init__()
 
         self.projection = nn.Sequential(

@@ -92,7 +92,8 @@ class Generator(nn.Module):
         ec_textures = {}
         ec_structures = {}
 
-        input_texture_mask = torch.cat((mask, mask, mask), dim=1)#下面是纹理编码器，把每一层的特征都保存到列表里，便于跳跃连接时使用
+        #input_texture_mask = torch.cat((mask, mask, mask), dim=1)#下面是纹理编码器，把每一层的特征都保存到列表里，便于跳跃连接时使用
+        input_texture_mask=mask
         ec_textures['ec_t_0'], ec_textures['ec_t_masks_0'] = input_image, input_texture_mask
         ec_textures['ec_t_1'], ec_textures['ec_t_masks_1'] = self.ec_texture_1(ec_textures['ec_t_0'], ec_textures['ec_t_masks_0'])
         ec_textures['ec_t_2'], ec_textures['ec_t_masks_2'] = self.ec_texture_2(ec_textures['ec_t_1'], ec_textures['ec_t_masks_1'])
