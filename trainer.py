@@ -1,11 +1,7 @@
-import os
-
 import torch
-import numpy as np
 from tqdm import tqdm
 
 from tensorboardX import SummaryWriter
-
 from utils.distributed import get_rank, reduce_loss_dict
 from utils.misc import requires_grad, sample_data
 from criteria.loss import generator_loss_func, discriminator_loss_func
@@ -17,7 +13,7 @@ def train(opts, image_data_loader, generator, discriminator, extractor, generato
     pbar = range(opts.train_iter)#迭代训练的迭代器
     if get_rank() == 0:#在控制台打印出进度条
         pbar = tqdm(pbar, initial=opts.start_iter, dynamic_ncols=True, smoothing=0.01)
-    
+
     if opts.distributed:#if else语句判断当前环境是否是分布式训练环境，根据具体情况加载模型
         generator_module, discriminator_module = generator.module, discriminator.module
     else:

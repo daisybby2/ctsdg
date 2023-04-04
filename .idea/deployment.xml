@@ -1,11 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="Yingying@172.27.230.175:22 password" remoteFilesAllowedToDisappearOnAutoupload="false">
+  <component name="PublishConfigData" autoUpload="Always" serverName="CTSDG" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
+      <paths name="CTSDG">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/Yingying/project/CTSDG" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
       <paths name="Yingying@172.27.230.175:22 password">
         <serverdata>
           <mappings>
             <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="Yingying@172.27.230.175:22 password (1)">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="Yingying@172.27.230.175:22 password (2)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/Yingying/project/CTSDG" local="$PROJECT_DIR$" />
           </mappings>
         </serverdata>
       </paths>
